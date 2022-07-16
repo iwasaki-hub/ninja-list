@@ -1,14 +1,16 @@
 import Navbar from "./Navbar"
+import styles from '../styles/Layout.module.css'
+import Header from "./Header"
 
 const Layout = ({ children }) => {
   return (
-    <>
+    <div className={styles.container}>
       <Navbar />
-      
-      <div>{children}</div>
+      <Header />
+      <div className={styles.main}>{children}</div>
 
-      
-    </>
+
+    </div>
   )
 }
 

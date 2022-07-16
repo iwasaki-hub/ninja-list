@@ -24,7 +24,7 @@ export const getStaticProps = async (context) => {
 
   const id = context.params.id;
 
-  console.log(id)
+  console.log(context)
   const res = await fetch("https://jsonplaceholder.typicode.com/users/" + id);
   const data = await res.json();
 
