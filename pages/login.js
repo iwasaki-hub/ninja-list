@@ -11,12 +11,10 @@ import { useRouter } from 'next/router'
 
 
 import GoogleButton from 'react-google-button'
-import GithubButton from 'react-github-login-button'
 
 const login = () => {
 
   const googleProvider = new GoogleAuthProvider();
-  const githubProvider = new GithubAuthProvider();
 
   const router = useRouter();
 
@@ -64,17 +62,7 @@ const login = () => {
 
   }
 
-  const signUpWithGitHub = () => {
-    signInWithPopup(auth, githubProvider).then((response) => {
-      console.log(response.user)
-      sessionStorage.setItem('Token', response.user.accessToken);
-
-      router.push("/");
-    }).catch((err) => {
-      console.log(err.message)
-    })
-
-  }
+ 
 
 
 
@@ -126,13 +114,7 @@ const login = () => {
       />
 
 
-      <GithubButton
-        style={{ marginTop: '5px' }}
-        onClick={signUpWithGitHub}
-
-
-      />
-
+   
 
 
 

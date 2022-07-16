@@ -80,9 +80,9 @@ export default function Home({ articles }) {
   }
 
 
-  const getID = (id, name, age) => {
-    setName(name);
-    setAge(age);
+  const getID = (id, n, a) => {
+    setName(n);
+    setAge(a);
     setID(id);
 
     setIsUpdate(true);

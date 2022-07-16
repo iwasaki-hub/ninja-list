@@ -1,6 +1,5 @@
 import {
   createUserWithEmailAndPassword,
-  GithubAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
 } from 'firebase/auth';
@@ -15,7 +14,6 @@ import GithubButton from 'react-github-login-button'
 const register = () => {
 
   const googleProvider = new GoogleAuthProvider();
-  const githubProvider = new GithubAuthProvider();
 
   const router = useRouter();
 
@@ -61,17 +59,6 @@ const register = () => {
 
   }
 
-  const signUpWithGitHub = () => {
-    signInWithPopup(auth, githubProvider).then((response) => {
-      console.log(response.user)
-      sessionStorage.setItem('Token', response.user.accessToken);
-
-      router.push("/");
-    }).catch((err) => {
-      console.log(err.message)
-    })
-
-  }
 
 
 
