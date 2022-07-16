@@ -1,9 +1,134 @@
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  serverTimestamp,
+  updateDoc
+} from 'firebase/firestore';
 import Head from 'next/head'
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import ArticleList from '../components/ArticleList';
 import styles from '../styles/Home.module.css'
+import { auth, db } from './firebase-config';
 
 
 export default function Home({ articles }) {
+
+
+  const [documents, setDocuments] = useState([]);
+
+  const [name, setName] = useState("")
+  const [age, setAge] = useState("")
+  const [ID, setID] = useState("");
+  const [isUpdate, setIsUpdate] = useState(false);
+
+
+  const collectionRef = collection(db, "posts");
+
+
+  let router = useRouter();
+
+  useEffect(() => {
+    let token = sessionStorage.getItem('Token');
+    if (token) {
+      getData();
+    }
+    if (!token) {
+      router.push("/register")
+    }
+  }, [])
+
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log(user)
+    } else {
+      console.log("nothing")
+    }
+  })
+
+
+  const getData = async () => {
+    await getDocs(collectionRef).then((response) => {
+      setDocuments(response.docs.map((data) => {
+        return { ...data.data(), id: data.id };
+      }))
+    })
+  }
+
+
+
+  const addData = async () => {
+
+    await addDoc(collectionRef, {
+      name: name,
+      age: Number(age),
+      timestamp: serverTimestamp(),
+    }).then(() => {
+      getData();
+      setName("")
+      setAge("")
+
+    }).catch((err) => {
+      console.log(err.message)
+    })
+
+  }
+
+
+  const getID = (id, name, age) => {
+    setName(name);
+    setAge(age);
+    setID(id);
+
+    setIsUpdate(true);
+  }
+
+  const updateFields = async () => {
+
+    let filedToEdit = doc(db, "posts", ID);
+    await updateDoc(filedToEdit, {
+      name: name,
+      age: Number(age),
+      updatedAt: serverTimestamp(),
+    }).then(() => {
+      getData()
+      setIsUpdate(false)
+      setName("")
+      setAge("")
+    }).catch((err) => {
+      console.log(err.message)
+    })
+
+
+  }
+
+
+  const deleteDocument = async (id) => {
+
+    let filedToEdit = doc(db, "posts", id);
+    deleteDoc(filedToEdit).then(() => {
+      getData()
+    }).catch((err) => {
+      console.log(err.message)
+    })
+
+  }
+
+
+  const logout = async () => {
+
+    await signOut(auth);
+    sessionStorage.removeItem("Token");
+    router.push("/register");
+
+
+  }
+
 
 
 
@@ -16,12 +141,100 @@ export default function Home({ articles }) {
       </Head>
 
 
+      <button
+        onClick={logout}
+      >Log Out</button>
+      <hr />
+
+
+      <input
+        style={{
+          height: '30px',
+          width: '200px'
+        }}
+        type="text"
+        placeholder='Name...'
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+
+      />
+
+      <br />
+
+      <input
+        style={{
+          height: '30px',
+          width: '200px'
+        }}
+        type="number"
+        placeholder='Age...'
+        value={age}
+        onChange={(e) => setAge(e.target.value)}
+
+      />
+
+      <br />
+
+      {isUpdate ? (
+        <button
+          style={{
+            width: '100px',
+            height: '30px',
+            cursor: 'pointer',
+          }}
+          onClick={updateFields}
+        >Update</button>
+
+      ) : (
+
+        <button
+          style={{
+            width: '100px',
+            height: '30px',
+            cursor: 'pointer',
+          }}
+          onClick={addData}
+        >Add</button>
+
+
+      )}
+
+
+
+
+      {documents?.map((post) => {
+        return (
+          <div key={post.id}
+            style={{
+              display: 'flex',
+              justifyContent: "space-between",
+              width: '80%',
+              alignItems: 'center'
+            }}
+
+
+          >
+            <div>
+              <h3>Name: <span>{post.name}</span></h3>
+              <p>Age: <span>{post.age}</span></p>
+            </div>
+
+            <div>
+              <button
+                onClick={() => getID(post.id, post.name, post.age)}
+              >Update</button>
+              <br />
+              <button
+                onClick={() => deleteDocument(post.id)}
+              >Delete</button>
+            </div>
+          </div>
+        )
+      })}
+
+
 
       <ArticleList articles={articles} />
-
-
-
-
 
     </div>
   )
